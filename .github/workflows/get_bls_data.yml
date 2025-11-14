@@ -96,7 +96,7 @@ jobs:
 
       - name: Fetch number of unemployed workers
         run: |
-          curl -fSL "https://api.bls.gov/publicAPI/v2/timeseries/data/LNS12000000" \
+          curl -fSL "https://api.bls.gov/publicAPI/v2/timeseries/data/LNS13000000" \
             -o total_unemployment.json
 
       - name: Configure Git user
