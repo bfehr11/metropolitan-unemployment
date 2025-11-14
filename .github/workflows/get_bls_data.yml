@@ -1,4 +1,4 @@
-name: fetch-bls-unemployment
+name: fetch-bls-multiple
 
 on:
   workflow_dispatch:
@@ -6,7 +6,7 @@ on:
     - cron: "0 0 1 * *"
 
 jobs:
-  download_nation_data:
+  download_bls_data:
     runs-on: ubuntu-latest
 
     steps:
@@ -15,121 +15,40 @@ jobs:
 
       - name: Fetch nationwide unemployment rates
         run: |
-          curl -fSL "https://api.bls.gov/publicAPI/v2/timeseries/data/LNS14000000" \
-            -o nation_unemployment_rates.json
+          curl -fSL \
+            "https://api.bls.gov/publicAPI/v2/timeseries/data/LNS14000000" \
+            -o bls_unemployment_rates.json
+
+      - name: Fetch non-farm employment
+        run: |
+          curl -fSL \
+            "https://api.bls.gov/publicAPI/v2/timeseries/data/CES0000000001" \
+            -o bls_farm_employment.json
+
+      - name: Fetch total employment
+        run: |
+          curl -fSL \
+            "https://api.bls.gov/publicAPI/v2/timeseries/data/LNS12000000" \
+            -o bls_total_employment.json
+
+      - name: Fetch total unemployment
+        run: |
+          curl -fSL \
+            "https://api.bls.gov/publicAPI/v2/timeseries/data/LNS13000000" \
+            -o bls_total_employment.json
 
       - name: Configure Git user
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Fetch and rebase latest changes
+      - name: Commit all BLS data in a single commit
         run: |
-          git fetch origin main
-          git rebase origin/main
+          git add bls_*.json
 
-      - name: Commit updated data
-        run: |
-          git add nation_unemployment_rates.json
           if git diff --cached --quiet; then
             echo "No changes to commit."
           else
-            git commit -m "Update nation unemployment rates data"
-            git push
-          fi
-
-  download_farm_workers_data:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-
-      - name: Fetch nationwide unemployment rates
-        run: |
-          curl -fSL "https://api.bls.gov/publicAPI/v2/timeseries/data/CES0000000001" \
-            -o farm_employment.json
-
-      - name: Configure Git user
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
-      - name: Fetch and rebase latest changes
-        run: |
-          git fetch origin main
-          git rebase origin/main
-
-      - name: Commit updated data
-        run: |
-          git add farm_employment.json
-          if git diff --cached --quiet; then
-            echo "No changes to commit."
-          else
-            git commit -m "Update farm employment data"
-            git push
-          fi
-
-  download_employed_workers_data:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-
-      - name: Fetch number of employed workers
-        run: |
-          curl -fSL "https://api.bls.gov/publicAPI/v2/timeseries/data/LNS12000000" \
-            -o total_employment.json
-
-      - name: Configure Git user
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-        
-      - name: Fetch and rebase latest changes
-        run: |
-          git fetch origin main
-          git rebase origin/main
-
-      - name: Commit updated data
-        run: |
-          git add total_employment.json
-          if git diff --cached --quiet; then
-            echo "No changes to commit."
-          else
-            git commit -m "Update total employment data"
-            git push
-          fi
-
-  download_unemployed_workers_data:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-
-      - name: Fetch number of unemployed workers
-        run: |
-          curl -fSL "https://api.bls.gov/publicAPI/v2/timeseries/data/LNS13000000" \
-            -o total_unemployment.json
-
-      - name: Configure Git user
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
-      - name: Fetch and rebase latest changes
-        run: |
-          git fetch origin main
-          git rebase origin/main
-
-      - name: Commit updated data
-        run: |
-          git add total_unemployment.json
-          if git diff --cached --quiet; then
-            echo "No changes to commit."
-          else
-            git commit -m "Update total unemployment data"
+            git commit -m "Update multiple BLS datasets"
             git push
           fi
