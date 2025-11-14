@@ -35,7 +35,7 @@ jobs:
         run: |
           curl -fSL \
             "https://api.bls.gov/publicAPI/v2/timeseries/data/LNS13000000" \
-            -o bls_total_employment.json
+            -o bls_total_unemployment.json
 
       - name: Configure Git user
         run: |
