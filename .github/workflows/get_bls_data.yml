@@ -1,0 +1,25 @@
+name: fetch-bls-unemployment
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 0 1 * *"
+
+jobs:
+  download_nation_data:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Fetch nationwide unemployment rates
+        run: |
+          curl -fSL "https://api.bls.gov/publicAPI/v2/timeseries/data/LNS14000000" \
+            -o bls_unemployment.json
+
+      - name: Upload BLS data as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: bls-unemployment
+          path: bls_unemployment.json
