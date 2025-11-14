@@ -18,8 +18,17 @@ jobs:
           curl -fSL "https://api.bls.gov/publicAPI/v2/timeseries/data/LNS14000000" \
             -o bls_unemployment.json
 
-      - name: Upload BLS data as artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: bls-unemployment
-          path: bls_unemployment.json
+      - name: Configure Git user
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Commit updated data
+        run: |
+          git add bls_unemployment.json
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "Update nation unemployment data"
+            git push
+          fi
