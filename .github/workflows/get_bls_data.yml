@@ -58,7 +58,7 @@ jobs:
 
       - name: Commit all BLS data in a single commit
         run: |
-          git add bls_*.json
+          git add bls_*.json bls_metro_unemployment_rates.csv
 
           if git diff --cached --quiet; then
             echo "No changes to commit."
