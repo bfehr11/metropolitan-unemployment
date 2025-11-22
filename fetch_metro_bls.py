@@ -59,7 +59,7 @@ metro_series_ids = {
     "Orlando, FL": "LAUMT123674000000003"
 }
 
-data = pd.DataFrame(columns = [None] * 240)
+data = pd.DataFrame(columns = [None] * 241)
 
 def call_bls(series_id):
     payload = { 
@@ -77,9 +77,9 @@ for key, value in metro_series_ids.items():
     series_data = call_bls(value)
     temp = pd.DataFrame(series_data['Results']['series'][0]['data'])
     if len(data) == 0:
-        data.columns = temp['periodName'] + ", " + temp['year']
+        data.columns = pd.concat([pd.Series(["city"]), (temp['periodName'] + ", " + temp['year'])])
     
-    new_row = [None] * (240 - len(temp)) + temp['value'].values.tolist()
+    new_row = [key] + [None] * (240 - len(temp)) + temp['value'].values.tolist()
     new_row = pd.DataFrame([new_row], columns=data.columns)
 
     data = pd.concat([data, new_row], ignore_index=True)
