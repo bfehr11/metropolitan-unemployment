@@ -8,6 +8,11 @@ period_length = st.sidebar.radio("Over the last _______"
                                , ['1 month', '6 months', '1 year', '5 years'])
 rate_type = st.sidebar.radio("Type"
                              , ['monthly', 'annualized', 'total'])
+region = st.sidebar.radio("Region"
+                          , ["Entire US"] + data['Region'].unique().tolist())
+
+if region != "Entire US":
+    data = data[data['Region'] == region]
 
 rates = None
 if period_length == "1 month":
