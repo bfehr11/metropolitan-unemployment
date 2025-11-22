@@ -3,8 +3,6 @@ import numpy as np
 import streamlit as st
 import plotly.express as px
 
-st.set_page_config(page_title="US City Dots", layout="wide")
-
 data = pd.read_csv("bls_metro_unemployment_rates.csv")
 data = data.drop(columns=[data.columns[0]])
 data = data.rename(columns={data.columns[0]: "city", data.columns[1]: "value"})[["city", "value", "lat", "lon"]]
