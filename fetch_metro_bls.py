@@ -3,6 +3,7 @@ import time
 import json
 import os
 import pandas as pd
+from datetime import datetime
 
 BLS_API = "https://api.bls.gov/publicAPI/v2/timeseries/data/"
 
@@ -59,13 +60,14 @@ metro_series_ids = {
     "Orlando, FL": "LAUMT123674000000003"
 }
 
-data = pd.DataFrame(columns = [None] * 241)
+data = pd.DataFrame(columns = [None] * 237)
+curr_year = datetime.now().year
 
 def call_bls(series_id):
     payload = { 
         "seriesid": [series_id],
-        "startyear": "1990",
-        "endyear": "9999", 
+        "startyear": str(curr_year - 19),
+        "endyear": str(curr_year), 
         "registrationkey": "054aebaf933d47399ceff04caf6e4a9b"
     }
     response = requests.post(BLS_API, json=payload)
@@ -79,7 +81,7 @@ for key, value in metro_series_ids.items():
     if len(data) == 0:
         data.columns = pd.concat([pd.Series(["city"]), (temp['periodName'] + ", " + temp['year'])])
     
-    new_row = [key] + [None] * (240 - len(temp)) + temp['value'].values.tolist()
+    new_row = [key] + [None] * (236 - len(temp)) + temp['value'].values.tolist()
     new_row = pd.DataFrame([new_row], columns=data.columns)
 
     data = pd.concat([data, new_row], ignore_index=True)

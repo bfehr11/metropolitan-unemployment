@@ -1,13 +1,17 @@
 import streamlit as st
 import pandas as pd
-import json
-import plotly.express as px
 
-data = json.load(open('bls_unemployment.json'))
-data = pd.DataFrame(data['Results']['series'][0]['data'])
-data['periodName'] = data['periodName'] + " " + data['year']
-data = data[::-1]
+pages = {
+    "Nationwide Statistics": [
+        st.Page("nationwide_stats.py", title="What is Employment like Nationwide?")
+    ],
+    "Unemployment Rates Across the Country": [
+        st.Page("unemployment_map.py", title="Map"),
+    ],
+    "Unemployment Trends": [
+        st.Page("metro_unemployment_trends.py", title="Metros")
+    ]
+}
 
-fig = px.line(data, x="periodName", y="value", title="The Unemployment Rate over the Years"
-              , labels={'periodName': "", 'value': "Unemployment Rate"})
-fig.show()
+pg = st.navigation(pages, position="top")
+pg.run()
