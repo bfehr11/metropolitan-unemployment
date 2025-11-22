@@ -4,6 +4,8 @@ import json
 import os
 import pandas as pd
 from datetime import datetime
+from geopy.geocoders import Nominatim
+from geopy.extra.rate_limiter import RateLimiter
 
 BLS_API = "https://api.bls.gov/publicAPI/v2/timeseries/data/"
 
@@ -68,7 +70,7 @@ def call_bls(series_id):
         "seriesid": [series_id],
         "startyear": str(curr_year - 19),
         "endyear": str(curr_year), 
-        "registrationkey": "054aebaf933d47399ceff04caf6e4a9b"
+        "registrationkey": "526215c8390e4569998f80cc40898dcf"
     }
     response = requests.post(BLS_API, json=payload)
     response.raise_for_status()
@@ -85,5 +87,14 @@ for key, value in metro_series_ids.items():
     new_row = pd.DataFrame([new_row], columns=data.columns)
 
     data = pd.concat([data, new_row], ignore_index=True)
+
+geolocator = Nominatim(user_agent="st-us-cities")
+geocode = RateLimiter(geolocator.geocode, min_delay_seconds=1)
+rows = []
+for c in data["city"].dropna().unique():
+    loc = geocode(f"{c}, USA") or geocode(c)
+    rows.append((c, getattr(loc, "latitude", None), getattr(loc, "longitude", None)))
+geo = pd.DataFrame(rows, columns=["city", "lat", "lon"])
+data = data.merge(geo, on="city", how="left")
 
 data.to_csv("bls_metro_unemployment_rates.csv")
