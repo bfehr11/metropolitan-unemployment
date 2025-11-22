@@ -13,7 +13,6 @@ region = st.sidebar.radio("Region"
 
 if region != "Entire US":
     data = data[data['Region'] == region]
-
 rates = None
 if period_length == "1 month":
     rates = pd.concat([data['city'], data.iloc[:, 4] - data.iloc[:, 3]], axis=1)

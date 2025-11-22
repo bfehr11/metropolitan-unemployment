@@ -5,7 +5,7 @@ import plotly.express as px
 
 data = pd.read_csv("bls_metro_unemployment_rates.csv")
 data = data.drop(columns=[data.columns[0]])
-data = data.rename(columns={data.columns[0]: "city", data.columns[1]: "value"})[["city", "value", "lat", "lon"]]
+data = data.rename(columns={data.columns[0]: "city", data.columns[2]: "value"})[["city", "value", "lat", "lon"]]
 
 vmin, vmax = data["value"].min(), data["value"].max()
 data["size"] = np.interp(data["value"], (vmin, vmax), (8, 60))
