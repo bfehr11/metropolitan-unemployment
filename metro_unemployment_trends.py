@@ -1,8 +1,10 @@
 import streamlit as st
 import pandas as pd
 
+# get data
 data = pd.read_csv("bls_metro_unemployment_rates.csv")
 
+# add page elements
 st.title("Change in Unemployment Rate")
 period_length = st.sidebar.radio("Over the last _______"
                                , ['1 month', '6 months', '1 year', '5 years'])
@@ -11,9 +13,13 @@ rate_type = st.sidebar.radio("Type"
 region = st.sidebar.radio("Region"
                           , ["Entire US"] + data['Region'].unique().tolist())
 
+# filter the dataset according to the user's choice
 if region != "Entire US":
     data = data[data['Region'] == region]
+
 rates = None
+
+# calculate rate change according to the user's choices
 if period_length == "1 month":
     rates = pd.concat([data['city'], data.iloc[:, 3] - data.iloc[:, 4]], axis=1)
     rates.rename(columns={rates.columns[1]: 'Rate Change'}, inplace=True)
@@ -53,4 +59,6 @@ elif period_length == "5 years":
 
 rates.rename(columns={'city': 'City'}, inplace=True)
 rates = rates.sort_values(by='Rate Change', ascending=True).reset_index(drop=True)
+
+# display rate changes
 st.dataframe(rates.head(20), hide_index=True)
