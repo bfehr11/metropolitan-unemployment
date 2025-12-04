@@ -15,7 +15,7 @@ if region != "Entire US":
     data = data[data['Region'] == region]
 rates = None
 if period_length == "1 month":
-    rates = pd.concat([data['city'], data.iloc[:, 4] - data.iloc[:, 3]], axis=1)
+    rates = pd.concat([data['city'], data.iloc[:, 3] - data.iloc[:, 4]], axis=1)
     rates.rename(columns={rates.columns[1]: 'Rate Change'}, inplace=True)
     if rate_type == "monthly":
         pass
@@ -24,7 +24,7 @@ if period_length == "1 month":
     elif rate_type == "total": 
         pass
 elif period_length == "6 months":
-    rates = pd.concat([data['city'], data.iloc[:, 9] - data.iloc[:, 3]], axis=1)
+    rates = pd.concat([data['city'], data.iloc[:, 3] - data.iloc[:, 9]], axis=1)
     rates.rename(columns={rates.columns[1]: 'Rate Change'}, inplace=True)
     if rate_type == "monthly":
         rates['Rate Change'] = rates['Rate Change'] / 6
@@ -33,7 +33,7 @@ elif period_length == "6 months":
     elif rate_type == "total": 
         pass
 elif period_length == "1 year":
-    rates = pd.concat([data['city'], data.iloc[:, 15] - data.iloc[:, 3]], axis=1)
+    rates = pd.concat([data['city'], data.iloc[:, 3] - data.iloc[:, 15]], axis=1)
     rates.rename(columns={rates.columns[1]: 'Rate Change'}, inplace=True)
     if rate_type == "monthly":
         rates['Rate Change'] = rates['Rate Change'] / 12
@@ -42,7 +42,7 @@ elif period_length == "1 year":
     elif rate_type == "total": 
         pass
 elif period_length == "5 years":
-    rates = pd.concat([data['city'], data.iloc[:, 63] - data.iloc[:, 3]], axis=1)
+    rates = pd.concat([data['city'], data.iloc[:, 3] - data.iloc[:, 63]], axis=1)
     rates.rename(columns={rates.columns[1]: 'Rate Change'}, inplace=True)
     if rate_type == "monthly":
         rates['Rate Change'] = rates['Rate Change'] / 60
@@ -52,5 +52,5 @@ elif period_length == "5 years":
         pass
 
 rates.rename(columns={'city': 'City'}, inplace=True)
-rates = rates.sort_values(by='Rate Change', ascending=False).reset_index(drop=True)
+rates = rates.sort_values(by='Rate Change', ascending=True).reset_index(drop=True)
 st.dataframe(rates.head(20), hide_index=True)
