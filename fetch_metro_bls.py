@@ -9,6 +9,7 @@ from geopy.extra.rate_limiter import RateLimiter
 
 BLS_API = "https://api.bls.gov/publicAPI/v2/timeseries/data/"
 
+# metros' series ids and region
 metro_series_ids = {
     "New York, NY": ["LAUMT363562000000003", "Mid-Atlantic North"],
     "Los Angeles, CA": ["LAUMT063108000000003", "West Coast"],
@@ -62,9 +63,13 @@ metro_series_ids = {
     "Orlando, FL": ["LAUMT123674000000003", "Southern Florida"]
 }
 
+# initialize dataframe
 data = pd.DataFrame(columns = [None] * 238)
+
+# get current year
 curr_year = datetime.now().year
 
+# get an individual metro's unemployment rate data
 def call_bls(series_id):
     payload = { 
         "seriesid": [series_id],
@@ -77,17 +82,28 @@ def call_bls(series_id):
     data = response.json()
     return data
 
+# loop through all metros
 for key, value in metro_series_ids.items():
+    # get data for that metro
     series_data = call_bls(value[0])
+
+    # convert from json to dataframe
     temp = pd.DataFrame(series_data['Results']['series'][0]['data'])
+
+    # add column names before the first append to the dataframe
     if len(data) == 0:
         data.columns = pd.concat([pd.Series(["city"]), pd.Series(["Region"]), (temp['periodName'] + ", " + temp['year'])])
     
+    # create row consisting of metro name, region, None for all unavaiable months, and the unemployment rates for the months that are available
     new_row = [key, value[1]] + [None] * (236 - len(temp)) + temp['value'].values.tolist()
+
+    # convert row from list format to dataframe
     new_row = pd.DataFrame([new_row], columns=data.columns)
 
+    # append row to dataframe
     data = pd.concat([data, new_row], ignore_index=True)
 
+# get lat and lon of each metro in the dataframe and append them to the dataframe
 geolocator = Nominatim(user_agent="st-us-cities")
 geocode = RateLimiter(geolocator.geocode, min_delay_seconds=1)
 rows = []
@@ -97,4 +113,5 @@ for c in data["city"].dropna().unique():
 geo = pd.DataFrame(rows, columns=["city", "lat", "lon"])
 data = data.merge(geo, on="city", how="left")
 
+# convert dataframe to .csv
 data.to_csv("bls_metro_unemployment_rates.csv")
